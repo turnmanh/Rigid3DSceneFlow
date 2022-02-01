@@ -17,7 +17,7 @@ def to_tensor(x):
     
 def collate_fn(list_data):
     pc_1,pc_2, coords1, coords2, feats1, feats2, fg_labels_1, \
-    fg_labels_2, flow, R_ego, t_ego, pc_eval_1, pc_eval_2, flow_eval, fg_labels_eval_1, fg_labels_eval_2 = list(zip(*list_data))
+    fg_labels_2, flow, R_ego, t_ego, pc_eval_1, pc_eval_2, flow_eval, fg_labels_eval_1, fg_labels_eval_2, file_name = list(zip(*list_data))
 
     pc_batch1, pc_batch2 = [], []
     pc_eval_batch1, pc_eval_batch2 = [], []
