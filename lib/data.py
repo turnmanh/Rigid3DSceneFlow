@@ -321,7 +321,7 @@ class MELidarDataset(data.Dataset):
         fg_labels_2_eval[labels_2_eval == 0] = -1
 
         return (pc_1, pc_2, coords1, coords2, feats1, feats2, fg_labels_1, fg_labels_2, flow,
-                R_ego, t_ego, pc_1_eval, pc_2_eval, flow_eval, fg_labels_1_eval, fg_labels_2_eval)
+                R_ego, t_ego, pc_1_eval, pc_2_eval, flow_eval, fg_labels_1_eval, fg_labels_2_eval, file_name)
 
     def __len__(self):
         return len(self.files)
