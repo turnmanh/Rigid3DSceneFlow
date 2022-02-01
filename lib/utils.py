@@ -1,7 +1,7 @@
 import os
 import re
-import torch 
-import logging 
+import torch
+import logging
 import math
 from collections import defaultdict
 
@@ -12,11 +12,12 @@ from matplotlib import pyplot as plt
 from matplotlib import cm
 from matplotlib.colors import Normalize
 
+
 def dict_all_to_device(tensor_dict, device):
     """
     Puts all the tensors to a specified device
 
-    Args: 
+    Args:
         tensor_dict (dict): dictionary of all tensors
         device (str): device to be used (cuda or cpu)
 
@@ -24,15 +25,24 @@ def dict_all_to_device(tensor_dict, device):
 
     for key in tensor_dict:
         if isinstance(tensor_dict[key], torch.Tensor):
-            if 'sinput' not in key:
+            if "sinput" not in key:
                 tensor_dict[key] = tensor_dict[key].to(device)
-            
 
-def save_checkpoint(filename, epoch, it, model, optimizer=None, scheduler=None, config=None, best_val=None):
+
+def save_checkpoint(
+    filename,
+    epoch,
+    it,
+    model,
+    optimizer=None,
+    scheduler=None,
+    config=None,
+    best_val=None,
+):
     """
     Saves the current model, optimizer, scheduler, and side information to a checkpoint
 
-    Args: 
+    Args:
         filename (str): path to where the checpoint will be saved
         epoch (int): current epoch
         it (int): current iteration
@@ -43,15 +53,15 @@ def save_checkpoint(filename, epoch, it, model, optimizer=None, scheduler=None, 
         best_val (float): best validation result
 
     """
-    
+
     state = {
-        'epoch': epoch,
-        'state_dict': model.state_dict(),
-        'total_it': it,
-        'optimizer': optimizer.state_dict(),
-        'config': config,
-        'scheduler': scheduler.state_dict(),
-        'best_val': best_val,
+        "epoch": epoch,
+        "state_dict": model.state_dict(),
+        "total_it": it,
+        "optimizer": optimizer.state_dict(),
+        "config": config,
+        "scheduler": scheduler.state_dict(),
+        "best_val": best_val,
     }
 
     logging.info("Saving checkpoint: {} ...".format(filename))
@@ -62,7 +72,7 @@ def load_checkpoint(model, optimizer, scheduler, filename):
     """
     Loads the saved checkpoint and updates the model, optimizer and scheduler.
 
-    Args: 
+    Args:
         model (nn.Module): torch neural network model
         optimizer (torch.optim): selected optimizer
         scheduler (torch.optim): selected scheduler
@@ -88,51 +98,54 @@ def load_checkpoint(model, optimizer, scheduler, filename):
         # Safe loading of the model, load only the keys that are in the init and the saved model
         model_dict = model.state_dict()
         for key in model_dict:
-            if key in checkpoint['state_dict']:
-                model_dict[key] = checkpoint['state_dict'][key]
+            if key in checkpoint["state_dict"]:
+                model_dict[key] = checkpoint["state_dict"][key]
 
         model.load_state_dict(model_dict)
 
-        if optimizer is not None and 'optimizer' in checkpoint:
+        if optimizer is not None and "optimizer" in checkpoint:
             try:
-                optimizer.load_state_dict(checkpoint['optimizer'])
+                optimizer.load_state_dict(checkpoint["optimizer"])
             except:
-                logging.info('could not load optimizer from the pretrained model')
+                logging.info("could not load optimizer from the pretrained model")
 
-        if 'epoch' in checkpoint:
-            start_epoch = checkpoint['epoch']
+        if "epoch" in checkpoint:
+            start_epoch = checkpoint["epoch"]
 
-        if 'total_it' in checkpoint:
-            total_it = checkpoint['total_it']
+        if "total_it" in checkpoint:
+            total_it = checkpoint["total_it"]
 
-        if 'best_val' in checkpoint:
-            metric_val_best = checkpoint['best_val']
+        if "best_val" in checkpoint:
+            metric_val_best = checkpoint["best_val"]
 
-        if scheduler is not None and 'scheduler' in checkpoint:
-            scheduler.load_state_dict(checkpoint['scheduler'])
-        
+        if scheduler is not None and "scheduler" in checkpoint:
+            scheduler.load_state_dict(checkpoint["scheduler"])
+
     else:
         logging.info("No checkpoint found at {}".format(filename))
 
     return model, optimizer, scheduler, start_epoch, total_it, metric_val_best
 
 
-def load_point_cloud(file, data_type='numpy'):
+def load_point_cloud(file, data_type="numpy"):
     """
     Loads the point cloud coordinates from the '*.ply' file.
-    Args: 
+    Args:
         file (str): path to the '*.ply' file
         data_type (str): data type to be returned (default: numpy)
     Returns:
         pc (np.array or open3d.PointCloud()): point coordinates [n, 3]
     """
     temp_pc = o3d.io.read_point_cloud(file)
-     
-    assert data_type in ['numpy', 'open3d'], 'Wrong data type selected when loading the ply file.' 
-    
-    if data_type == 'numpy':
+
+    assert data_type in [
+        "numpy",
+        "open3d",
+    ], "Wrong data type selected when loading the ply file."
+
+    if data_type == "numpy":
         return np.asarray(temp_pc.points)
-    else:         
+    else:
         return temp_pc
 
 
@@ -144,32 +157,39 @@ def sorted_alphanum(file_list_ordered):
     Return:
         sorted_list (list): input list sorted alphanumerically
     """
+
     def convert(text):
         return int(text) if text.isdigit() else text
 
     def alphanum_key(key):
-        return [convert(c) for c in re.split('([0-9]+)', key)]
+        return [convert(c) for c in re.split("([0-9]+)", key)]
 
     sorted_list = sorted(file_list_ordered, key=alphanum_key)
 
     return sorted_list
-    
+
+
 def get_file_list(path, extension=None):
     """
     Build a list of all the files in the provided path
     Args:
-        path (str): path to the directory 
+        path (str): path to the directory
         extension (str): only return files with this extension
     Return:
         file_list (list): list of all the files (with the provided extension) sorted alphanumerically
     """
     if extension is None:
-        file_list = [os.path.join(path, f) for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
+        file_list = [
+            os.path.join(path, f)
+            for f in os.listdir(path)
+            if os.path.isfile(os.path.join(path, f))
+        ]
     else:
         file_list = [
             os.path.join(path, f)
             for f in os.listdir(path)
-            if os.path.isfile(os.path.join(path, f)) and os.path.splitext(f)[1] == extension
+            if os.path.isfile(os.path.join(path, f))
+            and os.path.splitext(f)[1] == extension
         ]
     file_list = sorted_alphanum(file_list)
 
@@ -180,22 +200,27 @@ def get_folder_list(path):
     """
     Build a list of all the files in the provided path
     Args:
-        path (str): path to the directory 
+        path (str): path to the directory
         extension (str): only return files with this extension
     Returns:
         file_list (list): list of all the files (with the provided extension) sorted alphanumerically
     """
-    folder_list = [os.path.join(path, f) for f in os.listdir(path) if os.path.isdir(os.path.join(path, f))]
+    folder_list = [
+        os.path.join(path, f)
+        for f in os.listdir(path)
+        if os.path.isdir(os.path.join(path, f))
+    ]
     folder_list = sorted_alphanum(folder_list)
-    
+
     return folder_list
+
 
 def n_model_parameters(model):
     """
     Counts the number of parameters in a torch model
     Args:
-        model (torch.Model): input model 
-    
+        model (torch.Model): input model
+
     Returns:
         _ (int): number of the parameters
     """
@@ -208,7 +233,7 @@ def pairwise_distance(src, dst, normalized=True):
     Args:
         src (torch tensor): source data, [b, n, c]
         dst (torch tensor): target data, [b, m, c]
-        normalized (bool): distance computation can be more efficient 
+        normalized (bool): distance computation can be more efficient
     Returns:
         dist (torch tensor): per-point square distance, [b, n, m]
     """
@@ -219,62 +244,73 @@ def pairwise_distance(src, dst, normalized=True):
 
     B, N, _ = src.shape
     _, M, _ = dst.shape
-    
-    # Minus such that smaller value still means closer 
+
+    # Minus such that smaller value still means closer
     dist = -torch.matmul(src, dst.permute(0, 2, 1))
 
-    # If inputs are normalized just add 1 otherwise compute the norms 
+    # If inputs are normalized just add 1 otherwise compute the norms
     if not normalized:
-        dist *= 2 
+        dist *= 2
         dist += torch.sum(src ** 2, dim=-1)[:, :, None]
         dist += torch.sum(dst ** 2, dim=-1)[:, None, :]
-    
+
     else:
         dist += 1.0
-    
+
     # Distances can get negative due to numerical precision
     dist = torch.clamp(dist, min=0.0, max=None)
-    
+
     return dist
 
 
 def rotation_error(R1, R2):
     """
-    Torch batch implementation of the rotation error between the estimated and the ground truth rotatiom matrix. 
+    Torch batch implementation of the rotation error between the estimated and the ground truth rotatiom matrix.
     Rotation error is defined as r_e = \arccos(\frac{Trace(\mathbf{R}_{ij}^{T}\mathbf{R}_{ij}^{\mathrm{GT}) - 1}{2})
-    Args: 
+    Args:
         R1 (torch tensor): Estimated rotation matrices [b,3,3]
         R2 (torch tensor): Ground truth rotation matrices [b,3,3]
     Returns:
         ae (torch tensor): Rotation error in angular degreees [b,1]
     """
-    R_ = torch.matmul(R1.transpose(1,2), R2)
-    e = torch.stack([(torch.trace(R_[_, :, :]) - 1) / 2 for _ in range(R_.shape[0])], dim=0).unsqueeze(1)
+    R_ = torch.matmul(R1.transpose(1, 2), R2)
+    e = torch.stack(
+        [(torch.trace(R_[_, :, :]) - 1) / 2 for _ in range(R_.shape[0])], dim=0
+    ).unsqueeze(1)
 
     # Clamp the errors to the valid range (otherwise torch.acos() is nan)
     e = torch.clamp(e, -1, 1, out=None)
 
     ae = torch.acos(e)
     pi = torch.Tensor([math.pi])
-    ae = 180. * ae / pi.to(ae.device).type(ae.dtype)
+    ae = 180.0 * ae / pi.to(ae.device).type(ae.dtype)
 
     return ae
 
 
 def translation_error(t1, t2):
     """
-    Torch batch implementation of the rotation error between the estimated and the ground truth rotatiom matrix. 
+    Torch batch implementation of the rotation error between the estimated and the ground truth rotatiom matrix.
     Rotation error is defined as r_e = \arccos(\frac{Trace(\mathbf{R}_{ij}^{T}\mathbf{R}_{ij}^{\mathrm{GT}) - 1}{2})
-    Args: 
+    Args:
         t1 (torch tensor): Estimated translation vectors [b,3,1]
         t2 (torch tensor): Ground truth translation vectors [b,3,1]
     Returns:
         te (torch tensor): translation error in meters [b,1]
     """
-    return torch.norm(t1-t2, dim=(1, 2))
+    return torch.norm(t1 - t2, dim=(1, 2))
 
 
-def kabsch_transformation_estimation(x1, x2, weights=None, normalize_w = True, eps = 1e-7, best_k = 0, w_threshold = 0, compute_residuals = False):
+def kabsch_transformation_estimation(
+    x1,
+    x2,
+    weights=None,
+    normalize_w=True,
+    eps=1e-7,
+    best_k=0,
+    w_threshold=0,
+    compute_residuals=False,
+):
     """
     Torch differentiable implementation of the weighted Kabsch algorithm (https://en.wikipedia.org/wiki/Kabsch_algorithm). Based on the correspondences and weights calculates
     the optimal rotation matrix in the sense of the Frobenius norm (RMSD), based on the estimated rotation matrix it then estimates the translation vector hence solving
@@ -293,40 +329,44 @@ def kabsch_transformation_estimation(x1, x2, weights=None, normalize_w = True, e
         valid_gradient (bool): Flag denoting if the SVD computation converged (gradient is valid)
     """
     if weights is None:
-        weights = torch.ones(x1.shape[0],x1.shape[1]).type_as(x1).to(x1.device)
+        weights = torch.ones(x1.shape[0], x1.shape[1]).type_as(x1).to(x1.device)
 
     if normalize_w:
-        sum_weights = torch.sum(weights,dim=1,keepdim=True) + eps
-        weights = (weights/sum_weights)
+        sum_weights = torch.sum(weights, dim=1, keepdim=True) + eps
+        weights = weights / sum_weights
 
     weights = weights.unsqueeze(2)
 
     if best_k > 0:
-        indices = np.argpartition(weights.cpu().numpy(), -best_k, axis=1)[0,-best_k:,0]
-        weights = weights[:,indices,:]
-        x1 = x1[:,indices,:]
-        x2 = x2[:,indices,:]
+        indices = np.argpartition(weights.cpu().numpy(), -best_k, axis=1)[
+            0, -best_k:, 0
+        ]
+        weights = weights[:, indices, :]
+        x1 = x1[:, indices, :]
+        x2 = x2[:, indices, :]
 
     if w_threshold > 0:
         weights[weights < w_threshold] = 0
 
-
-    x1_mean = torch.matmul(weights.transpose(1,2), x1) / (torch.sum(weights, dim=1).unsqueeze(1) + eps)
-    x2_mean = torch.matmul(weights.transpose(1,2), x2) / (torch.sum(weights, dim=1).unsqueeze(1) + eps)
+    x1_mean = torch.matmul(weights.transpose(1, 2), x1) / (
+        torch.sum(weights, dim=1).unsqueeze(1) + eps
+    )
+    x2_mean = torch.matmul(weights.transpose(1, 2), x2) / (
+        torch.sum(weights, dim=1).unsqueeze(1) + eps
+    )
 
     x1_centered = x1 - x1_mean
     x2_centered = x2 - x2_mean
 
-    cov_mat = torch.matmul(x1_centered.transpose(1, 2),
-                            (x2_centered * weights))
+    cov_mat = torch.matmul(x1_centered.transpose(1, 2), (x2_centered * weights))
 
     try:
         u, s, v = torch.svd(cov_mat)
 
     except Exception as e:
-        r = torch.eye(3,device=x1.device)
-        r = r.repeat(x1_mean.shape[0],1,1)
-        t = torch.zeros((x1_mean.shape[0],3,1), device=x1.device)
+        r = torch.eye(3, device=x1.device)
+        r = r.repeat(x1_mean.shape[0], 1, 1)
+        t = torch.zeros((x1_mean.shape[0], 3, 1), device=x1.device)
 
         res = transformation_residuals(x1, x2, r, t)
 
@@ -334,12 +374,24 @@ def kabsch_transformation_estimation(x1, x2, weights=None, normalize_w = True, e
 
     tm_determinant = torch.det(torch.matmul(v.transpose(1, 2), u.transpose(1, 2)))
 
-    determinant_matrix = torch.diag_embed(torch.cat((torch.ones((tm_determinant.shape[0],2),device=x1.device), tm_determinant.unsqueeze(1)), 1))
+    determinant_matrix = torch.diag_embed(
+        torch.cat(
+            (
+                torch.ones((tm_determinant.shape[0], 2), device=x1.device),
+                tm_determinant.unsqueeze(1),
+            ),
+            1,
+        )
+    )
 
-    rotation_matrix = torch.matmul(v,torch.matmul(determinant_matrix,u.transpose(1,2)))
+    rotation_matrix = torch.matmul(
+        v, torch.matmul(determinant_matrix, u.transpose(1, 2))
+    )
 
     # translation vector
-    translation_matrix = x2_mean.transpose(1,2) - torch.matmul(rotation_matrix,x1_mean.transpose(1,2))
+    translation_matrix = x2_mean.transpose(1, 2) - torch.matmul(
+        rotation_matrix, x1_mean.transpose(1, 2)
+    )
 
     # Residuals
     res = None
@@ -352,7 +404,7 @@ def kabsch_transformation_estimation(x1, x2, weights=None, normalize_w = True, e
 def transformation_residuals(x1, x2, R, t):
     """
     Computer the pointwise residuals based on the estimated transformation paramaters
-    
+
     Args:
         x1  (torch array): points of the first point cloud [b,n,3]
         x2  (torch array): points of the second point cloud [b,n,3]
@@ -361,16 +413,17 @@ def transformation_residuals(x1, x2, R, t):
     Returns:
         res (torch array): pointwise residuals (Eucledean distance) [b,n,1]
     """
-    x2_reconstruct = torch.matmul(R, x1.transpose(1, 2)) + t 
+    x2_reconstruct = torch.matmul(R, x1.transpose(1, 2)) + t
 
     res = torch.norm(x2_reconstruct.transpose(1, 2) - x2, dim=2)
 
     return res
 
+
 def transform_point_cloud(x1, R, t):
     """
     Transforms the point cloud using the giver transformation paramaters
-    
+
     Args:
         x1  (np array): points of the point cloud [b,n,3]
         R   (np array): estimated rotation matrice [b,3,3]
@@ -383,11 +436,11 @@ def transform_point_cloud(x1, R, t):
 
     if len(t.shape) != 3:
         t = t.unsqueeze(0)
-    
+
     if len(x1.shape) != 3:
         x1 = x1.unsqueeze(0)
 
-    x1_t = (torch.matmul(R, x1.transpose(2,1)) + t).transpose(2,1)
+    x1_t = (torch.matmul(R, x1.transpose(2, 1)) + t).transpose(2, 1)
 
     return x1_t
 
@@ -395,7 +448,7 @@ def transform_point_cloud(x1, R, t):
 def refine_ego_motion(pc_s, pc_t, bckg_mask_s, bckg_mask_t, R_est, t_est):
     """
     Refines the coarse ego motion estimate based on all background indices
-    
+
     Args:
         pc_s  (torch.tensor): points of the source point cloud [b,n,3]
         pc_t  (torch.tensor): points of the target point cloud [b,n,3]
@@ -420,31 +473,35 @@ def refine_ego_motion(pc_s, pc_t, bckg_mask_s, bckg_mask_t, R_est, t_est):
     init_T = np.eye(4)
 
     for b_idx in range(pc_s.shape[0]):
-        xyz_bckg_s = pc_s[b_idx, bckg_mask_s[b_idx,:], :].cpu().numpy()
-        xyz_bckg_t = pc_t[b_idx, bckg_mask_t[b_idx,:], :].cpu().numpy()
+        xyz_bckg_s = pc_s[b_idx, bckg_mask_s[b_idx, :], :].cpu().numpy()
+        xyz_bckg_t = pc_t[b_idx, bckg_mask_t[b_idx, :], :].cpu().numpy()
 
         pcd_s.points = o3d.utility.Vector3dVector(xyz_bckg_s)
         pcd_t.points = o3d.utility.Vector3dVector(xyz_bckg_t)
 
-        init_T[0:3,0:3] = R_est[b_idx,:,:]
-        init_T[0:3,3:4] = t_est[b_idx,:,:]
+        init_T[0:3, 0:3] = R_est[b_idx, :, :]
+        init_T[0:3, 3:4] = t_est[b_idx, :, :]
 
-        trans = o3d.pipelines.registration.registration_icp(pcd_s, pcd_t,
-                                                  max_correspondence_distance=0.15, init=init_T,
-                                                  criteria=o3d.pipelines.registration.ICPConvergenceCriteria(max_iteration = 300))
+        trans = o3d.pipelines.registration.registration_icp(
+            pcd_s,
+            pcd_t,
+            max_correspondence_distance=0.15,
+            init=init_T,
+            criteria=o3d.pipelines.registration.ICPConvergenceCriteria(
+                max_iteration=300
+            ),
+        )
 
-        R_ref[b_idx,:,:] = trans.transformation[0:3,0:3]
-        t_ref[b_idx,:,:] = trans.transformation[0:3,3:4]
-    
+        R_ref[b_idx, :, :] = trans.transformation[0:3, 0:3]
+        t_ref[b_idx, :, :] = trans.transformation[0:3, 3:4]
+
     return R_ref, t_ref
-
-
 
 
 def refine_cluster_motion(pc_s, pc_t, R_est=None, t_est=None):
     """
-    Refines the motion of a foreground rigid agent (clust) 
-    
+    Refines the motion of a foreground rigid agent (clust)
+
     Args:
         pc_s  (torch.tensor): points of the cluster points [n,3]
         pc_t  (torch.tensor): foreground point of the target point cloud [m,3]
@@ -461,23 +518,34 @@ def refine_cluster_motion(pc_s, pc_t, R_est=None, t_est=None):
     init_T = np.eye(4, dtype=np.float)
 
     if R_est is not None:
-        init_T[0:3,0:3] = R_est.cpu().numpy()
-        init_T[0:3,3:4] = t_est.cpu().numpy()
+        init_T[0:3, 0:3] = R_est.cpu().numpy()
+        init_T[0:3, 3:4] = t_est.cpu().numpy()
 
     pcd_s.points = o3d.utility.Vector3dVector(pc_s.cpu())
     pcd_t.points = o3d.utility.Vector3dVector(pc_t.cpu())
 
-    trans = o3d.pipelines.registration.registration_icp(pcd_s, pcd_t,
-                                              max_correspondence_distance=0.25, init=init_T,
-                                              criteria=o3d.pipelines.registration.ICPConvergenceCriteria(max_iteration = 300))
+    trans = o3d.pipelines.registration.registration_icp(
+        pcd_s,
+        pcd_t,
+        max_correspondence_distance=0.25,
+        init=init_T,
+        criteria=o3d.pipelines.registration.ICPConvergenceCriteria(max_iteration=300),
+    )
 
-    R_ref = trans.transformation[0:3,0:3].astype(np.float32)
-    t_ref = trans.transformation[0:3,3:4].astype(np.float32)
-    
+    R_ref = trans.transformation[0:3, 0:3].astype(np.float32)
+    t_ref = trans.transformation[0:3, 3:4].astype(np.float32)
+
     return R_ref, t_ref
 
 
-def compute_epe(est_flow, gt_flow, sem_label=None, eval_stats =False, mask=None):
+def compute_epe(
+    est_flow,
+    gt_flow,
+    sem_label=None,
+    eval_stats=False,
+    mask=None,
+    file_name: str = None,
+):
     """
     Compute 3d end-point-error
 
@@ -502,49 +570,59 @@ def compute_epe(est_flow, gt_flow, sem_label=None, eval_stats =False, mask=None)
 
     metrics = {}
     error = est_flow - gt_flow
-    
+
     # If mask if provided mask out the flow
     if mask is not None:
         error = error[mask > 0.5]
         gt_flow = gt_flow[mask > 0.5, :]
-    
+
     epe_per_point = torch.sqrt(torch.sum(torch.pow(error, 2.0), -1))
     epe = epe_per_point.mean()
 
-    metrics['epe'] = epe.item()
-
+    metrics["epe"] = epe.item()
 
     if sem_label is not None:
         # Extract epe for background and foreground separately (background = class 0)
-        bckg_mask = (sem_label == 0)
-        forg_mask = (sem_label == 1)
+        bckg_mask = sem_label == 0
+        forg_mask = sem_label == 1
 
         bckg_epe = epe_per_point[bckg_mask]
         forg_epe = epe_per_point[forg_mask]
 
-        metrics['bckg_epe'] = bckg_epe.mean().item()
-        metrics['bckg_epe_median'] = bckg_epe.median().item()
-        
+        metrics["bckg_epe"] = bckg_epe.mean().item()
+        metrics["bckg_epe_median"] = bckg_epe.median().item()
+
         if torch.sum(forg_mask) > 0:
-            metrics['forg_epe_median'] = forg_epe.median().item()
-            metrics['forg_epe'] = forg_epe.mean().item()
+            metrics["forg_epe_median"] = forg_epe.median().item()
+            metrics["forg_epe"] = forg_epe.mean().item()
 
     if eval_stats:
-        
+
         gt_f_magnitude = torch.norm(gt_flow, dim=-1)
         gt_f_magnitude_np = np.linalg.norm(gt_flow.cpu(), axis=-1)
         relative_err = epe_per_point / (gt_f_magnitude + 1e-4)
         acc3d_strict = (
-            (torch.logical_or(epe_per_point < 0.05, relative_err < 0.05)).type(torch.float).mean()
+            (torch.logical_or(epe_per_point < 0.05, relative_err < 0.05))
+            .type(torch.float)
+            .mean()
         )
         acc3d_relax = (
-            (torch.logical_or(epe_per_point < 0.1, relative_err < 0.1)).type(torch.float).mean()
+            (torch.logical_or(epe_per_point < 0.1, relative_err < 0.1))
+            .type(torch.float)
+            .mean()
         )
-        outlier = (torch.logical_or(epe_per_point > 0.3, relative_err > 0.1)).type(torch.float).mean()
+        outlier = (
+            (torch.logical_or(epe_per_point > 0.3, relative_err > 0.1))
+            .type(torch.float)
+            .mean()
+        )
 
-        metrics['acc3d_s'] = acc3d_strict.item()
-        metrics['acc3d_r'] = acc3d_relax.item()
-        metrics['outlier'] = outlier.item()
+        metrics["acc3d_s"] = acc3d_strict.item()
+        metrics["acc3d_r"] = acc3d_relax.item()
+        metrics["outlier"] = outlier.item()
+
+    with open("test_out.npz", "wb") as file:
+        np.savez(file, est_flow=est_flow, gt_flow=gt_flow, file_name=file_name)
 
     return metrics
 
@@ -568,7 +646,6 @@ def compute_l1_loss(est_flow, gt_flow):
     return loss
 
 
-
 def precision_at_one(pred, target):
     """
     Computes the precision and recall of the binary fg/bg segmentation
@@ -585,11 +662,19 @@ def precision_at_one(pred, target):
 
     """
 
-    precision_f = (pred[target == 1] == 1).float().sum() / ((pred == 1).float().sum() + 1e-6)
-    precision_b = (pred[target == 0] == 0).float().sum() / ((pred == 0).float().sum() + 1e-6)
+    precision_f = (pred[target == 1] == 1).float().sum() / (
+        (pred == 1).float().sum() + 1e-6
+    )
+    precision_b = (pred[target == 0] == 0).float().sum() / (
+        (pred == 0).float().sum() + 1e-6
+    )
 
-    recall_f = (pred[target == 1] == 1).float().sum() / ((target == 1).float().sum() + 1e-6)
-    recall_b = (pred[target == 0] == 0).float().sum() / ((target == 0).float().sum() + 1e-6)
+    recall_f = (pred[target == 1] == 1).float().sum() / (
+        (target == 1).float().sum() + 1e-6
+    )
+    recall_b = (pred[target == 0] == 0).float().sum() / (
+        (target == 0).float().sum() + 1e-6
+    )
 
     return precision_f, precision_b, recall_f, recall_b
 
@@ -619,48 +704,50 @@ def evaluate_binary_class(pred, target):
     return true_p, true_n, false_p, false_n
 
 
-
-def upsample_flow(xyz, sparse_flow_tensor, k_value=3, voxel_size = None):
+def upsample_flow(xyz, sparse_flow_tensor, k_value=3, voxel_size=None):
 
     dense_flow = []
     for b_idx in range(len(xyz)):
-        
+
         sparse_xyz = sparse_flow_tensor.coordinates_at(b_idx).cuda() * voxel_size
         sparse_flow = sparse_flow_tensor.features_at(b_idx)
 
-        sqr_dist = pairwise_distance(xyz[b_idx].cuda(), sparse_xyz, normalized=False).squeeze(0)
-        sqr_dist, group_idx = torch.topk(sqr_dist, k_value, dim = -1, largest=False, sorted=False)
-        
+        sqr_dist = pairwise_distance(
+            xyz[b_idx].cuda(), sparse_xyz, normalized=False
+        ).squeeze(0)
+        sqr_dist, group_idx = torch.topk(
+            sqr_dist, k_value, dim=-1, largest=False, sorted=False
+        )
 
         dist = torch.sqrt(sqr_dist)
-        norm = torch.sum(1 / (dist + 1e-7), dim = 1, keepdim = True)
-        weight = ((1 / (dist + 1e-7)) / norm ).unsqueeze(-1)
+        norm = torch.sum(1 / (dist + 1e-7), dim=1, keepdim=True)
+        weight = ((1 / (dist + 1e-7)) / norm).unsqueeze(-1)
 
         test = group_idx.reshape(-1)
-        sparse_flow = sparse_flow[group_idx.reshape(-1), :].reshape(-1,k_value,3)
-        
+        sparse_flow = sparse_flow[group_idx.reshape(-1), :].reshape(-1, k_value, 3)
+
         dense_flow.append(torch.sum(weight * sparse_flow, dim=1))
 
     return dense_flow
 
 
-def upsample_bckg_labels(xyz, sparse_seg_tensor, voxel_size = None):
+def upsample_bckg_labels(xyz, sparse_seg_tensor, voxel_size=None):
 
     upsampled_seg_labels = []
     for b_idx in range(len(xyz)):
         sparse_xyz = sparse_seg_tensor.coordinates_at(b_idx).cuda() * voxel_size
         seg_labels = sparse_seg_tensor.features_at(b_idx)
-        sqr_dist = pairwise_distance(xyz[b_idx].cuda(), sparse_xyz, normalized=False).squeeze(0)
-        sqr_dist, idx = torch.topk(sqr_dist, 1, dim = -1, largest=False, sorted=False)
-        
-        
+        sqr_dist = pairwise_distance(
+            xyz[b_idx].cuda(), sparse_xyz, normalized=False
+        ).squeeze(0)
+        sqr_dist, idx = torch.topk(sqr_dist, 1, dim=-1, largest=False, sorted=False)
+
         upsampled_seg_labels.append(seg_labels[idx.reshape(-1)])
 
-    return torch.cat(upsampled_seg_labels,0)
+    return torch.cat(upsampled_seg_labels, 0)
 
 
-
-def upsample_cluster_labels(xyz, sparse_seg_tensor, cluster_labels, voxel_size = None):
+def upsample_cluster_labels(xyz, sparse_seg_tensor, cluster_labels, voxel_size=None):
 
     upsampled_seg_labels = []
 
@@ -668,13 +755,14 @@ def upsample_cluster_labels(xyz, sparse_seg_tensor, cluster_labels, voxel_size =
     for b_idx in range(len(xyz)):
         sparse_xyz = sparse_seg_tensor.coordinates_at(b_idx).cuda() * voxel_size
         seg_labels = sparse_seg_tensor.features_at(b_idx)
-        sqr_dist = pairwise_distance(xyz[b_idx].cuda(), sparse_xyz, normalized=False).squeeze(0)
-        sqr_dist, idx = torch.topk(sqr_dist, 1, dim = -1, largest=False, sorted=False)
-        
+        sqr_dist = pairwise_distance(
+            xyz[b_idx].cuda(), sparse_xyz, normalized=False
+        ).squeeze(0)
+        sqr_dist, idx = torch.topk(sqr_dist, 1, dim=-1, largest=False, sorted=False)
+
         for cluster in cluster_labels[str(b_idx)]:
-            cluster_indices = torch.nonzero(idx.reshape(-1)[:,None] == cluster)
-        
-            cluster_labels_all[str(b_idx)].append(cluster_indices[:,0])
+            cluster_indices = torch.nonzero(idx.reshape(-1)[:, None] == cluster)
+
+            cluster_labels_all[str(b_idx)].append(cluster_indices[:, 0])
 
     return cluster_labels_all
-

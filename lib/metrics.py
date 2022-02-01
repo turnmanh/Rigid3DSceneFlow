@@ -34,7 +34,7 @@ class EvalMetrics(nn.Module):
             # If bg/fg labels are available use them to also compute f-EPE and b-EPE
             if 'fg_labels_eval_s' in gt_data and self.args['data']['dataset'] not in ["FlyingThings3D_ME", "StereoKITTI_ME"]:
                 gt_label = gt_data['fg_labels_s'] if phase == 'train' else gt_data['fg_labels_eval_s']
-                ego_metrics = compute_epe(inferred_values['refined_rigid_flow'], gt_flow, sem_label=gt_label, eval_stats=True)
+                ego_metrics = compute_epe(inferred_values['refined_rigid_flow'], gt_flow, sem_label=gt_label, eval_stats=True, file_name="test")
             else:
                 ego_metrics = compute_epe(inferred_values['refined_rigid_flow'], gt_flow, eval_stats =True)
             
