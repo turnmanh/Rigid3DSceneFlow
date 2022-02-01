@@ -624,10 +624,11 @@ def compute_epe(
     # todo: remove; saving prediction, label and name to file 
     with open(f"./output/output_{file_name[0]}.npz", "wb") as file:
         np.savez(
-            file, est_flow=est_flow.cpu().detach().numpy(), 
+            file, est_flow=est_flow.cpu().detach().numpy(),
             gt_flow=gt_flow.cpu().detach().numpy(),
-            epe=metrics["epe"], 
-            file_name=file_name)
+            epe=metrics["epe"],
+            file_name=file_name
+        )
 
     # todo: remove prints 
     print("[INFO] sizes".ljust(80, "="))
