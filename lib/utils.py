@@ -622,7 +622,7 @@ def compute_epe(
         metrics["outlier"] = outlier.item()
 
     # todo: remove; saving prediction, label and name to file 
-    with open("test_out.npz", "wb") as file:
+    with open(f"./output/output_{file_name}.npz", "wb") as file:
         np.savez(
             file, est_flow=est_flow.cpu().detach().numpy(), 
             gt_flow=gt_flow.cpu().detach().numpy(),
