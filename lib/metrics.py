@@ -36,7 +36,7 @@ class EvalMetrics(nn.Module):
                 gt_label = gt_data['fg_labels_s'] if phase == 'train' else gt_data['fg_labels_eval_s']
                 ego_metrics = compute_epe(inferred_values['refined_rigid_flow'], gt_flow, sem_label=gt_label, eval_stats=True, file_name="test")
             else:
-                ego_metrics = compute_epe(inferred_values['refined_rigid_flow'], gt_flow, eval_stats =True)
+                ego_metrics = compute_epe(inferred_values['refined_rigid_flow'], gt_flow, eval_stats =True, file_name="test")
             
             for key, value in ego_metrics.items():
                 metrics[key] = value
