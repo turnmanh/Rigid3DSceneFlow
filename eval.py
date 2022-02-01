@@ -79,7 +79,7 @@ def main(cfg, logger):
         # Put all the tensors to the designated device
 
         # todo: remove; locking for source file name
-        print(batch["file_name"])
+        # print(batch["file_name"])
         dict_all_to_device(batch, device)
         
 
