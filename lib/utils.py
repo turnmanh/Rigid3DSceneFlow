@@ -629,6 +629,8 @@ def compute_epe(
             epe=metrics["epe"], 
             file_name=file_name)
 
+    print(f"saved {file_name}")
+
     return metrics
 
 
