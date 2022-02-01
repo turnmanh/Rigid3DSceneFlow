@@ -631,8 +631,8 @@ def compute_epe(
 
     # todo: remove prints 
     print("[INFO] sizes".ljust(80, "="))
-    print(gt_flow.size)
-    print(est_flow.size)
+    print(gt_flow.size())
+    print(est_flow.size())
 
     print(f"saved {file_name[0]}")
 
