@@ -77,7 +77,7 @@ def main(cfg, logger):
     
     for it, batch in enumerate(tqdm(eval_loader)):
         # Put all the tensors to the designated device
-        print(batch.keys())
+        print(batch["file_name"])
         dict_all_to_device(batch, device)
         
 
