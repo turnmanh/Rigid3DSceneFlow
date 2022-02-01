@@ -625,7 +625,8 @@ def compute_epe(
     with open("test_out.npz", "wb") as file:
         np.savez(
             file, est_flow=est_flow.cpu().detach().numpy(), 
-            gt_flow=gt_flow.cpu().detach().numpy(), 
+            gt_flow=gt_flow.cpu().detach().numpy(),
+            epe=metrics["epe"], 
             file_name=file_name)
 
     return metrics
