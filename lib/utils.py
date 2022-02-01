@@ -629,6 +629,7 @@ def compute_epe(
             epe=metrics["epe"], 
             file_name=file_name)
 
+    # todo: remove prints 
     print("[INFO] sizes".ljust(80, "="))
     print(gt_flow.size)
     print(est_flow.size)
