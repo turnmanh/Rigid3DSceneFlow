@@ -10,7 +10,7 @@ misc:
 
 data:
   dataset: LidarKITTI_ME # Name of the dataset [StereoKITTI_ME, FlyingThings3D_ME, SemanticKITTI_ME, LidarKITTI_ME, WaymoOpen_ME]
-  root: ./data/lidar_kitti/new_train # Path to the data
+  root: ./data/lidar_kitti/new_train_1 # Path to the data
   input_features: absolute_coords # Input features assigned to each sparse voxel
   n_classes: 2 # Number of classes for the background segmentation head
   remove_ground: True # Remove ground by simple thresholding of the height coordinate
