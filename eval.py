@@ -110,6 +110,8 @@ def main(cfg, logger):
 
 
 if __name__ == "__main__":
+    # setup logger
+    logging.basicConfig(filename='eval_model.log', encoding='utf-8'
     logger = logging.getLogger
 
 
