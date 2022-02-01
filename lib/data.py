@@ -21,7 +21,7 @@ def collate_fn(list_data):
     fg_labels_2, flow, R_ego, t_ego, pc_eval_1, pc_eval_2, flow_eval, fg_labels_eval_1, fg_labels_eval_2, file_name = list(zip(*list_data))
 
     print(file_name)
-    
+
     pc_batch1, pc_batch2 = [], []
     pc_eval_batch1, pc_eval_batch2 = [], []
     fg_labels_batch1, fg_labels_batch2 = [], []
@@ -84,7 +84,8 @@ def collate_fn(list_data):
         'flow_eval': flow_eval_batch,
         'fg_labels_eval_s': fg_labels_eval_batch1,
         'fg_labels_eval_t': fg_labels_eval_batch2,
-        'len_batch': len_batch
+        'len_batch': len_batch,
+        'file_name': file_name
     }
 
 
