@@ -564,9 +564,9 @@ def compute_epe(
         outlier (float): ratio of outliers (error larger than 30cm or 10%)
     """
 
-    print(est_flow)
-    print()
-    print(gt_flow)
+    # print(est_flow)
+    # print()
+    # print(gt_flow)
 
     metrics = {}
     error = est_flow - gt_flow
@@ -621,6 +621,7 @@ def compute_epe(
         metrics["acc3d_r"] = acc3d_relax.item()
         metrics["outlier"] = outlier.item()
 
+    # todo: remove; saving prediction, label and name to file 
     with open("test_out.npz", "wb") as file:
         np.savez(
             file, est_flow=est_flow.cpu().detach().numpy(), 
