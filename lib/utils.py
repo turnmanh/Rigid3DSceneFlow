@@ -496,6 +496,10 @@ def compute_epe(est_flow, gt_flow, sem_label=None, eval_stats =False, mask=None)
         outlier (float): ratio of outliers (error larger than 30cm or 10%)
     """
 
+    print(est_flow)
+    print()
+    print(gt_flow)
+
     metrics = {}
     error = est_flow - gt_flow
     
