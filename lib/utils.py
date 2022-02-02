@@ -519,10 +519,10 @@ def refine_cluster_motion(pc_s, pc_t, R_est=None, t_est=None):
 
     if R_est is not None:
         init_T[0:3, 0:3] = R_est.cpu().numpy()
-        init_T[0:3, 3:4] = t_est.cpu().numpy()
+        # init_T[0:3, 3:4] = t_est.cpu().numpy()
 
     pcd_s.points = o3d.utility.Vector3dVector(pc_s.cpu())
-    pcd_t.points = o3d.utility.Vector3dVector(pc_t.cpu())
+    # pcd_t.points = o3d.utility.Vector3dVector(pc_t.cpu())
 
     trans = o3d.pipelines.registration.registration_icp(
         pcd_s,
